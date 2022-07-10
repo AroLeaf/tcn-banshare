@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>TCN Banshares</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/d649462fb3.js" crossorigin="anonymous"></script>
+    <link rel='icon' type='image/png' href='logo.png'>
+  </head>
+
+  <body>
+    <main>
+      <header>
+        <img src="logo.png">
+        <h1>TCN Banshare Form</h1>
+      </header>
+      <form action="submit" method="post">
+        
+        <label>
+          <h3>Username(s) of the Offender(s)</h3>
+          <input type="text" name="username" placeholder="Leaf#1950">
+        </label>
+
+        <label>
+          <h3>Discord ID(s) of the Offender(s)</h3>
+          <input type="text" name="id" placeholder="659488296820408355">
+        </label>
+
+        <label>
+          <h3>Reason(s) for the ban(s)</h3>
+          <textarea name="reason" rows="5" placeholder="making bad bots"></textarea>
+        </label>
+
+        <label>
+          <h3>Evidence</h3>
+          <i>For images use third party or discord hosted image links.</i><br>
+          <textarea name="evidence" rows="5"></textarea>
+        </label>
+
+        <button type="submit">Submit</button>
+
+      </form>
+    </main>
+  </body>
+</html>
