@@ -46,25 +46,29 @@ fastify.post('/submit', async (request, reply) => {
   const user = users.get(request.cookies.token);
   if (!user) return reply.redirect('/oauth');
 
+  const inAPI = await fetch(`https://api.teyvatcollective.network/users/${user.id}`).then(res => res.ok);
+  if (!inAPI) return reply.sendFile('no_access.html');
+
   const message = `
 **username(s):** ${request.body.username}
 **user id(s):** ${request.body.id}
 **reason(s):** ${request.body.reason}
 **evidence:** ${request.body.evidence}
+**Submitted by:** ${user.username}#${user.discriminator} (${user.id})
   `
 
-  await Webhook.send(process.env.WEBHOOK_URL, {
+  const msgData = {
     content: message.length > 2000 ? '[file]' : message,
     files: message.length > 2000 ? [{ filename: 'message.md', attachment: message }] : undefined,
-    footer: { text: `Submitted by: ${user.username}#${user.discriminator} (${user.id})` },
     username: 'TCN Banshare',
     avatar_url: 'https://banshare.teyvatcollective.network/logo.png',
     allowed_mentions: { parse: [] },
-  }).then(async res => {
-    console.log(await res.text());
-  });
+  }
+
+  await Webhook.send(process.env.HQ_URL, msgData);
+  await Webhook.send(process.env.HUB_URL, msgData);
   
-  return reply.send('done');
+  return reply.sendFile('submitted.html');
 });
 
 
