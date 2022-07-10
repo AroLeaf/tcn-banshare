@@ -35,6 +35,10 @@ fastify.get('/oauth', async (request, reply) => {
   });
   
   const user = await Oauth.user(tokens);
+
+  const inAPI = await fetch(`https://api.teyvatcollective.network/users/${user.id}`).then(res => res.ok);
+  if (!inAPI) return reply.sendFile('no_access.html');
+
   users.set(tokens.access_token, user);
 
   reply.setCookie('token', tokens.access_token, { sameSite: 'lax' });
@@ -45,9 +49,6 @@ fastify.get('/oauth', async (request, reply) => {
 fastify.post('/submit', async (request, reply) => {
   const user = users.get(request.cookies.token);
   if (!user) return reply.redirect('/oauth');
-
-  const inAPI = await fetch(`https://api.teyvatcollective.network/users/${user.id}`).then(res => res.ok);
-  if (!inAPI) return reply.sendFile('no_access.html');
 
   const message = `
 **username(s):** ${request.body.username}
