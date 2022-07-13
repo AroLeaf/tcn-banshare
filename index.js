@@ -51,8 +51,8 @@ fastify.post('/submit', async (request, reply) => {
   if (!user) return reply.redirect('/oauth');
 
   const message = `
-**username(s):** ${request.body.username}
 **user id(s):** ${request.body.id}
+**username(s):** ${request.body.username}
 **reason(s):** ${request.body.reason}
 **evidence:** ${request.body.evidence}
 **Submitted by:** ${user.username}#${user.discriminator} (${user.id})
