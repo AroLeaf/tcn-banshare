@@ -66,9 +66,7 @@ fastify.post('/submit', async (request, reply) => {
     allowed_mentions: { parse: [] },
   }
 
-  await Webhook.send(process.env.HQ_URL, msgData);
-  await Webhook.send(process.env.HUB_URL, msgData);
-  
+  await Webhook.send(process.env.WEBHOOK_URL, msgData);
   return reply.sendFile('submitted.html');
 });
 
