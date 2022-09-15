@@ -27,7 +27,7 @@ async function getDiscordUser(id) {
 
 fastify.addHook('onRequest', async (request, reply) => {
   const apiUser = request.cookies.token && await fetch(`${process.env.API_URL}/auth/user`, { headers: { 'Authorization': request.cookies.token } }).then(res => res.ok && res.json());
-  if (!apiUser) await reply.redirect(`${process.env.API_URL}/auth?redirect=${encodeURIComponent(process.env.OWN_URL)}`);
+  if (!apiUser) await reply.redirect(`${process.env.AUTH_URL}?redirect=${encodeURIComponent(process.env.OWN_URL)}`);
   request.user = await getDiscordUser(apiUser.id);
 });
 
