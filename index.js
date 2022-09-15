@@ -5,7 +5,6 @@ const ffFormbody = require('@fastify/formbody');
 
 const path = require('path');
 
-const Oauth = require('./oauth.js');
 const Webhook = require('./webhook.js');
 require('dotenv/config');
 
@@ -18,44 +17,34 @@ fastify.register(ffFormbody);
 const users = new Map();
 
 
+async function getDiscordUser(id) {
+  let user = users.get(id);
+  if (user) return user;
+  user = await fetch('https://discord.com/api/v10/users/' + id, { headers: { 'Authorization': `Bot ${process.env.DSC_TOKEN}` } }).then(res => res.ok && res.json());
+  users.set(id, user);
+  return user;
+}
+
+fastify.addHook('onRequest', async (request, reply) => {
+  if (!request.cookies.token) await reply.redirect(`${process.env.API_URL}/auth?redirect=${encodeURIComponent(process.env.OWN_URL)}`);
+  const apiUser = await fetch(`${process.env.API_URL}/auth/user`, { headers: { 'Authorization': request.cookies.token } }).then(res => res.ok && res.json());
+  request.user = await getDiscordUser(apiUser.id);
+});
+
+
 fastify.get('/', async (request, reply) => {
-  if (!users.has(request.cookies.token)) return reply.redirect('/oauth');
+  console.log(request.user);
   return reply.sendFile('index.html');
 });
 
 
-fastify.get('/oauth', async (request, reply) => {
-  if (!request.query.code) return reply.redirect(`https://discord.com/oauth2/authorize?response_type=code&client_id=${process.env.DSC_ID}&scope=identify&redirect_uri=${process.env.DSC_REDIRECT}`);
-
-  const tokens = await Oauth.token({
-    client_id: process.env.DSC_ID,
-    client_secret: process.env.DSC_SECRET,
-    code: request.query.code,
-    redirect_uri: process.env.DSC_REDIRECT,
-  });
-  
-  const user = await Oauth.user(tokens);
-
-  const inAPI = await fetch(`https://api.teyvatcollective.network/users/${user.id}`).then(res => res.ok);
-  if (!inAPI) return reply.sendFile('no_access.html');
-
-  users.set(tokens.access_token, user);
-
-  reply.setCookie('token', tokens.access_token, { sameSite: 'lax' });
-  return reply.redirect('/');
-});
-
-
 fastify.post('/submit', async (request, reply) => {
-  const user = users.get(request.cookies.token);
-  if (!user) return reply.redirect('/oauth');
-
   const message = `
 **user id(s):** ${request.body.id}
 **username(s):** ${request.body.username}
 **reason(s):** ${request.body.reason}
 **evidence:** ${request.body.evidence}
-**Submitted by:** ${user.username}#${user.discriminator} (${user.id})
+**Submitted by:** ${request.user.username}#${request.user.discriminator} (${request.user.id})
   `
 
   const msgData = {
